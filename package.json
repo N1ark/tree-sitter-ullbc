@@ -1,0 +1,22 @@
+{
+  "name": "tree-sitter-ullbc",
+  "version": "0.1.0",
+  "description": "Tree-sitter grammar for ULLBC crate dumps (Charon's pretty-printed IR)",
+  "main": "bindings/node",
+  "keywords": ["tree-sitter", "ullbc", "charon"],
+  "license": "MIT",
+  "dependencies": {
+    "node-addon-api": "^7.1.0",
+    "node-gyp-build": "^4.8.0"
+  },
+  "devDependencies": {
+    "tree-sitter-cli": "^0.26.0"
+  },
+  "tree-sitter": [
+    {
+      "scope": "source.ullbc",
+      "file-types": ["ullbc.crate", "crate"],
+      "highlights": ["queries/highlights.scm"]
+    }
+  ]
+}

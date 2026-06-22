@@ -1,0 +1,8 @@
+# Node tooling
+node_modules/
+
+# Build artifacts (the committed src/parser.c is what Zed compiles)
+build/
+*.wasm
+target/
+.DS_Store
