@@ -534,7 +534,21 @@ module.exports = grammar({
 
     string: ($) => token(seq('"', repeat(choice(/[^"\\]/, /\\./)), '"')),
     byte_string: ($) => token(seq('b"', repeat(choice(/[^"\\]/, /\\./)), '"')),
-    char: ($) => token(seq("'", choice(/[^'\\]/, /\\./), "'")),
+    // Quoted char literals as printed by Charon via `char::escape_debug`,
+    // e.g. `'a'`, `'\n'`, `'\\'`, `'\''`, `'\u{0}'`.
+    char: ($) =>
+      token(
+        seq(
+          "'",
+          choice(
+            /[^'\\]/,
+            /\\u\{[0-9a-fA-F]+\}/,
+            /\\x[0-9a-fA-F]{2}/,
+            /\\./,
+          ),
+          "'",
+        ),
+      ),
 
     identifier: ($) => /[A-Za-z_][A-Za-z0-9_]*/,
   },

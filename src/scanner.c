@@ -43,7 +43,29 @@ bool tree_sitter_ullbc_external_scanner_scan(void *payload, TSLexer *lexer,
     return false;
   }
 
-  // Anything else is a bare char-literal glyph (`"`, `'`, `\`, `+`, NUL, ...).
+  // A `'` may open a well-formed quoted char literal (newer dumps, e.g.
+  // `'\u{0}'`) or be a bare `'` glyph (older raw dumps). Peek for a closing
+  // quote: if found, defer to the internal `char` token; otherwise emit the
+  // lone `'` as a switch_char. Returning false resets the lexer position.
+  if (c == '\'') {
+    lexer->advance(lexer, false);  // past the opening quote
+    lexer->mark_end(lexer);        // fallback token is just "'"
+    for (int i = 0; i < 16 && !lexer->eof(lexer); i++) {
+      int32_t d = lexer->lookahead;
+      if (d == '\'') {
+        return false;  // closing quote -> quoted char literal, defer
+      }
+      if (d == ' ' || d == '\t' || d == '\n' || d == '\r' ||
+          d == ']' || d == ';' || d == '>' || d == 0) {
+        break;  // delimiter before any closing quote -> it was a bare `'`
+      }
+      lexer->advance(lexer, false);
+    }
+    lexer->result_symbol = SWITCH_CHAR;
+    return true;  // token spans the marked end (the lone `'`)
+  }
+
+  // Anything else is a bare char-literal glyph (`"`, `\`, `+`, NUL, ...).
   lexer->advance(lexer, false);
   lexer->result_symbol = SWITCH_CHAR;
   lexer->mark_end(lexer);
