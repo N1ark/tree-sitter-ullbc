@@ -1,7 +1,8 @@
-; Syntax highlighting for ULLBC crate dumps (Charon's pretty-printed IR).
+; Syntax highlighting for Charon's pretty-printed IR (ULLBC and LLBC dumps).
 
 ; ----- Comments -----------------------------------------------------------
 (line_comment) @comment
+(header_comment) @comment
 
 ; ----- Literals -----------------------------------------------------------
 (integer) @number
@@ -12,10 +13,12 @@
 (boolean) @boolean
 (lifetime) @label
 (builtin_body) @constant.builtin
+(opaque_const) @constant.builtin
+(no_provenance) @constant.builtin
 
-; ----- Labels -------------------------------------------------------------
+; ----- Labels / disambiguators -------------------------------------------
 (block_id) @label
-(closure_id) @label
+(name_group) @label
 
 ; ----- Attributes ---------------------------------------------------------
 (attribute (identifier) @attribute)
@@ -25,33 +28,41 @@
 (primitive_type) @type.builtin
 (never_type) @type.builtin
 (unit_type) @type.builtin
+(wildcard_type) @type.builtin
 
-; ----- Declarations: names ------------------------------------------------
+; ----- Declaration names --------------------------------------------------
 (function_item name: (path (path_segment (identifier) @function)))
+(method_decl name: (identifier) @function)
 (struct_item name: (path (path_segment (identifier) @type)))
 (union_item name: (path (path_segment (identifier) @type)))
 (enum_item name: (path (path_segment (identifier) @type)))
 (trait_item name: (path (path_segment (identifier) @type)))
 (type_alias_item name: (path (path_segment (identifier) @type)))
+(assoc_type (identifier) @type)
+(impl_item trait: (path (path_segment (identifier) @type)))
 (impl_item type: (path (path_segment (identifier) @type)))
 (global_item name: (path (path_segment (identifier) @constant)))
 
-; ----- Calls --------------------------------------------------------------
+; ----- Calls / builtins ---------------------------------------------------
 (call_expression function: (path (path_segment (identifier) @function)))
+(at_name) @function.builtin
+(type_error) @function.builtin
 
-; ----- Aggregate construction ---------------------------------------------
+; ----- Aggregates ---------------------------------------------------------
 (aggregate type: (path (path_segment (identifier) @type)))
 
-; ----- Fields and parameters ----------------------------------------------
+; ----- Fields, params, locals --------------------------------------------
 (field_declaration name: (identifier) @property)
 (field_initializer name: (identifier) @property)
 (variant name: (identifier) @constant)
 (parameter name: (identifier) @variable.parameter)
 (place field: (identifier) @property)
+(offset_of field: (identifier) @property)
 "metadata" @property
 
 ; ----- Keywords -----------------------------------------------------------
 (visibility) @keyword
+(non_dyn_compatible) @keyword
 
 [
   "fn"
@@ -81,6 +92,9 @@
   "mut"
   "raw"
   "null"
+  "two-phase-mut"
+  "uniq"
+  "shallow"
 ] @keyword
 
 [
@@ -93,19 +107,28 @@
   "storage_dead"
   "goto"
   "return"
+  "break"
+  "continue"
+  "nop"
   "switch"
+  "if"
+  "else"
+  "match"
+  "loop"
   "panic"
   "undefined_behavior"
   "unwind_terminate"
   "unwind_continue"
   "unwind_unreachable"
   "unreachable"
-  "unwind"
   "assert"
-  "else"
   "drop"
-  "nop"
+  "conditional_drop"
   "with_metadata"
+  "otherwise"
+  "unwind"
+  "asm!"
+  "target"
 ] @keyword
 
 [
@@ -113,20 +136,14 @@
   "transmute"
   "unsize_cast"
   "concretize"
-  "size_of"
-  "align_of"
-  "offset_of"
   "ub_checks"
   "overflow_checks"
   "contract_checks"
-  "len"
+  "offset_of"
   "variant"
   "at"
+  "no-provenance"
 ] @keyword.operator
-
-"@discriminant" @keyword.operator
-
-; `const` used as an operand prefix keeps the keyword colour above.
 
 ; ----- Operators ----------------------------------------------------------
 (binary_operator) @operator
@@ -136,16 +153,19 @@
 [
   ":="
   "->"
+  "=>"
   "="
   "~"
   "&"
   "*"
+  ".."
   "..="
+  "+"
 ] @operator
 
 ; ----- Punctuation --------------------------------------------------------
 [ "(" ")" "[" "]" "{" "}" "<" ">" ] @punctuation.bracket
-[ "," ";" ":" "::" "." ] @punctuation.delimiter
+[ "," ";" ":" "::" "." "|" ] @punctuation.delimiter
 
 ; ----- Identifier heuristics (fallback) -----------------------------------
 ; Rust naming conventions: SCREAMING_CASE -> constant, CamelCase -> type.
