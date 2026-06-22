@@ -6775,54 +6775,28 @@
   ],
   "conflicts": [
     [
-      "_expression",
-      "_place_inner"
-    ],
-    [
       "path_segment"
-    ],
-    [
-      "_type",
-      "_expression"
-    ],
-    [
-      "_type",
-      "clause_typed"
-    ],
-    [
-      "generic_argument",
-      "_expression"
     ],
     [
       "impl_item",
       "path_segment"
     ],
     [
-      "clause_typed",
-      "path"
+      "wildcard_type",
+      "reference_type"
     ],
     [
-      "clause_typed",
-      "_place_atom"
-    ],
-    [
-      "clause_typed",
-      "index_projection"
-    ],
-    [
-      "_type",
-      "place"
-    ],
-    [
-      "_type",
-      "_place_atom"
-    ],
-    [
-      "_type",
-      "_place_inner"
+      "_predicate_body"
     ],
     [
       "_abort_kind"
+    ],
+    [
+      "clause_typed",
+      "_place_atom"
+    ],
+    [
+      "where_clause"
     ],
     [
       "assoc_type",
@@ -6833,7 +6807,18 @@
       "path_segment"
     ],
     [
+      "_predicate_body",
+      "hrtb_type"
+    ],
+    [
+      "_expression",
+      "_place_inner"
+    ],
+    [
       "path"
+    ],
+    [
+      "_predicate_tail"
     ],
     [
       "storage_statement",
@@ -6847,6 +6832,14 @@
       "_place_atom"
     ],
     [
+      "reference_type",
+      "borrow_kind"
+    ],
+    [
+      "_constant",
+      "call_expression"
+    ],
+    [
       "switch_arm",
       "binary_operator"
     ],
@@ -6856,31 +6849,6 @@
     ],
     [
       "qualified_path"
-    ],
-    [
-      "wildcard_type",
-      "reference_type"
-    ],
-    [
-      "_constant",
-      "call_expression"
-    ],
-    [
-      "where_clause"
-    ],
-    [
-      "_predicate_body",
-      "hrtb_type"
-    ],
-    [
-      "reference_type",
-      "borrow_kind"
-    ],
-    [
-      "_predicate_body"
-    ],
-    [
-      "_predicate_tail"
     ]
   ],
   "precedences": [],

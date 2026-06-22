@@ -1,0 +1,33 @@
+name: corpus
+
+# Validate the grammar against Charon's IR test corpus. Runs on every push/PR,
+# and on a weekly schedule so that changes to Charon's pretty-printer are caught
+# even when this repo is untouched.
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      charon_ref:
+        description: Charon git ref to test against
+        default: main
+  schedule:
+    - cron: "0 6 * * 1" # Mondays, 06:00 UTC
+
+jobs:
+  parse:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install tree-sitter CLI
+        run: npm install
+
+      - name: Validate grammar against Charon IR corpus
+        env:
+          CHARON_REF: ${{ github.event.inputs.charon_ref || 'main' }}
+        run: ./scripts/check-corpus.sh
