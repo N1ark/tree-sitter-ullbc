@@ -618,6 +618,10 @@
         {
           "type": "unit_expression",
           "named": true
+        },
+        {
+          "type": "unwind_block",
+          "named": true
         }
       ]
     }
@@ -732,11 +736,15 @@
       }
     },
     "children": {
-      "multiple": false,
+      "multiple": true,
       "required": false,
       "types": [
         {
           "type": "call_target",
+          "named": true
+        },
+        {
+          "type": "unwind_block",
           "named": true
         }
       ]
@@ -1948,6 +1956,10 @@
         {
           "type": "call_target",
           "named": true
+        },
+        {
+          "type": "unwind_block",
+          "named": true
         }
       ]
     }
@@ -2650,6 +2662,10 @@
         },
         {
           "type": "unit_type",
+          "named": true
+        },
+        {
+          "type": "unwind_block",
           "named": true
         },
         {
@@ -4233,6 +4249,10 @@
         },
         {
           "type": "unit_expression",
+          "named": true
+        },
+        {
+          "type": "unwind_block",
           "named": true
         }
       ]
@@ -6683,6 +6703,93 @@
     "fields": {}
   },
   {
+    "type": "unwind_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "abort_statement",
+          "named": true
+        },
+        {
+          "type": "assert_statement",
+          "named": true
+        },
+        {
+          "type": "assign_statement",
+          "named": true
+        },
+        {
+          "type": "break_statement",
+          "named": true
+        },
+        {
+          "type": "call_statement",
+          "named": true
+        },
+        {
+          "type": "continue_statement",
+          "named": true
+        },
+        {
+          "type": "drop_statement",
+          "named": true
+        },
+        {
+          "type": "goto_statement",
+          "named": true
+        },
+        {
+          "type": "if_statement",
+          "named": true
+        },
+        {
+          "type": "inline_asm_statement",
+          "named": true
+        },
+        {
+          "type": "loop_statement",
+          "named": true
+        },
+        {
+          "type": "match_statement",
+          "named": true
+        },
+        {
+          "type": "nop_statement",
+          "named": true
+        },
+        {
+          "type": "place_mention_statement",
+          "named": true
+        },
+        {
+          "type": "return_statement",
+          "named": true
+        },
+        {
+          "type": "set_discriminant_statement",
+          "named": true
+        },
+        {
+          "type": "storage_statement",
+          "named": true
+        },
+        {
+          "type": "switch_statement",
+          "named": true
+        },
+        {
+          "type": "unwind_statement",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "unwind_statement",
     "named": true,
     "fields": {}
@@ -7672,6 +7779,10 @@
   },
   {
     "type": "~",
+    "named": false
+  },
+  {
+    "type": "↳⚡",
     "named": false
   }
 ]

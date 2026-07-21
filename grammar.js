@@ -60,6 +60,15 @@ module.exports = grammar({
     [$.switch_arm, $.binary_operator],
     [$.tuple_expression, $.call_expression],
     [$.qualified_path],
+    // An unwind handler ends in a diverging terminator whose own optional `;`
+    // can't be told apart from the enclosing statement's optional `;` (LLBC
+    // never actually emits one, so either reading is fine).
+    [$.unwind_statement],
+    [$.abort_statement],
+    // A diverging statement inside an unwind handler may be either the block's
+    // terminator (closing it) or an interior statement; GLR picks the reading
+    // that yields a complete parse.
+    [$._statement, $.unwind_block],
   ],
 
   rules: {
@@ -173,6 +182,7 @@ module.exports = grammar({
         choice(':=', '='),
         field('rhs', $._expression),
         optional($._call_arrow),
+        optional($.unwind_block),
         semi(),
       ),
 
@@ -186,7 +196,26 @@ module.exports = grammar({
     // A call without a destination (incl. intrinsics like
     // `copy_nonoverlapping(...)`), possibly with a ULLBC terminator arrow.
     call_statement: ($) =>
-      seq($.call_expression, optional($._call_arrow), semi()),
+      seq($.call_expression, optional($._call_arrow), optional($.unwind_block), semi()),
+
+    // LLBC on-unwind path. Charon appends the unwind handler of a fallible
+    // statement (call / drop / assert / inline asm) on the following lines,
+    // the first prefixed with `↳⚡ ` and the rest indented one level deeper:
+    //
+    //     a = to_string::<str><'5>(move _2)
+    //     ↳⚡ storage_dead(_2)
+    //         storage_dead(_3)
+    //         unwind_continue
+    //     storage_dead(_2)          <-- sibling of the call, back at its indent
+    //
+    // The grammar is not indentation-sensitive, so the block is delimited
+    // grammatically instead: an unwind handler is a straight-line diverging
+    // block, so it is exactly a run of statements ending in a diverging
+    // terminator (`unwind_continue` / `unwind_terminate` / `undefined_behavior`
+    // / `unreachable`). Nested control flow (`loop { }`, `if { } else { }`) is
+    // self-delimited by its braces and appears in the leading run.
+    unwind_block: ($) =>
+      seq('↳⚡', repeat($._statement), choice($.unwind_statement, $.abort_statement)),
 
     _call_arrow: ($) => seq('->', $.call_target),
     call_target: ($) =>
@@ -202,7 +231,7 @@ module.exports = grammar({
     assert_statement: ($) =>
       choice(
         seq('assert', $.assert_expr, $._call_arrow, semi()),
-        seq($.assert_expr, 'else', $._abort_kind, semi()),
+        seq($.assert_expr, 'else', $._abort_kind, optional($.unwind_block), semi()),
       ),
     assert_expr: ($) =>
       seq(
@@ -219,6 +248,7 @@ module.exports = grammar({
         optional(seq('[', $._type, ']')),
         $.place,
         optional($._call_arrow),
+        optional($.unwind_block),
         semi(),
       ),
 
@@ -301,6 +331,7 @@ module.exports = grammar({
         ')',
         optional(seq('->', sep1($.switch_target, ','))),
         optional($.asm_targets),
+        optional($.unwind_block),
         semi(),
       ),
     asm_targets: ($) =>

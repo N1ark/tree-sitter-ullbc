@@ -30,4 +30,4 @@ jobs:
       - name: Validate grammar against Charon IR corpus
         env:
           CHARON_REF: ${{ github.event.inputs.charon_ref || 'main' }}
-        run: ./scripts/check-corpus.sh
+        run: ./scripts/corpus.sh --group
