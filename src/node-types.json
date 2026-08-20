@@ -1089,8 +1089,24 @@
     "fields": {},
     "children": {
       "multiple": true,
-      "required": true,
+      "required": false,
       "types": [
+        {
+          "type": "attr_punctuation",
+          "named": true
+        },
+        {
+          "type": "byte_string",
+          "named": true
+        },
+        {
+          "type": "char",
+          "named": true
+        },
+        {
+          "type": "float",
+          "named": true
+        },
         {
           "type": "identifier",
           "named": true
@@ -1135,6 +1151,10 @@
         },
         {
           "type": "assign_statement",
+          "named": true
+        },
+        {
+          "type": "borrowck_statement",
           "named": true
         },
         {
@@ -1347,6 +1367,10 @@
           "named": true
         },
         {
+          "type": "borrowck_statement",
+          "named": true
+        },
+        {
           "type": "break_statement",
           "named": true
         },
@@ -1459,6 +1483,89 @@
     "fields": {}
   },
   {
+    "type": "borrowck_statement",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "array_type",
+          "named": true
+        },
+        {
+          "type": "clause_typed",
+          "named": true
+        },
+        {
+          "type": "dyn_type",
+          "named": true
+        },
+        {
+          "type": "fn_type",
+          "named": true
+        },
+        {
+          "type": "hrtb_type",
+          "named": true
+        },
+        {
+          "type": "lifetime",
+          "named": true
+        },
+        {
+          "type": "never_type",
+          "named": true
+        },
+        {
+          "type": "path",
+          "named": true
+        },
+        {
+          "type": "place",
+          "named": true
+        },
+        {
+          "type": "pointer_type",
+          "named": true
+        },
+        {
+          "type": "primitive_type",
+          "named": true
+        },
+        {
+          "type": "reference_type",
+          "named": true
+        },
+        {
+          "type": "refined_type",
+          "named": true
+        },
+        {
+          "type": "slice_type",
+          "named": true
+        },
+        {
+          "type": "tuple_type",
+          "named": true
+        },
+        {
+          "type": "type_error",
+          "named": true
+        },
+        {
+          "type": "unit_type",
+          "named": true
+        },
+        {
+          "type": "wildcard_type",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "brace_block",
     "named": true,
     "fields": {},
@@ -1476,6 +1583,10 @@
         },
         {
           "type": "assign_statement",
+          "named": true
+        },
+        {
+          "type": "borrowck_statement",
           "named": true
         },
         {
@@ -6723,6 +6834,10 @@
           "named": true
         },
         {
+          "type": "borrowck_statement",
+          "named": true
+        },
+        {
           "type": "break_statement",
           "named": true
         },
@@ -6815,6 +6930,10 @@
       "types": [
         {
           "type": "field_declaration",
+          "named": true
+        },
+        {
+          "type": "field_list",
           "named": true
         }
       ]
@@ -7344,6 +7463,10 @@
     "named": true
   },
   {
+    "type": "attr_punctuation",
+    "named": true
+  },
+  {
     "type": "block_id",
     "named": true
   },
@@ -7445,6 +7568,10 @@
   },
   {
     "type": "f64",
+    "named": false
+  },
+  {
+    "type": "fake_read",
     "named": false
   },
   {
@@ -7598,6 +7725,10 @@
     "named": false
   },
   {
+    "type": "predicate_holds",
+    "named": false
+  },
+  {
     "type": "proof",
     "named": false
   },
@@ -7611,6 +7742,14 @@
   },
   {
     "type": "return",
+    "named": false
+  },
+  {
+    "type": "set_outlives",
+    "named": false
+  },
+  {
+    "type": "set_type",
     "named": false
   },
   {
@@ -7675,6 +7814,10 @@
   },
   {
     "type": "type_error",
+    "named": false
+  },
+  {
+    "type": "typeof",
     "named": false
   },
   {

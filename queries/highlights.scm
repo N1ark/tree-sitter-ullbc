@@ -22,6 +22,7 @@
 
 ; ----- Attributes ---------------------------------------------------------
 (attribute (identifier) @attribute)
+(attribute (attr_punctuation) @punctuation.delimiter)
 (attribute ["#[" "]"] @punctuation.bracket)
 
 ; ----- Built-in types -----------------------------------------------------
@@ -105,6 +106,11 @@
 [
   "storage_live"
   "storage_dead"
+  "fake_read"
+  "set_type"
+  "typeof"
+  "set_outlives"
+  "predicate_holds"
   "goto"
   "return"
   "break"
@@ -161,6 +167,9 @@
   ".."
   "..="
   "+"
+  "=="
+  "<="
+  ">="
 ] @operator
 
 ; ----- Punctuation --------------------------------------------------------

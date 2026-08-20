@@ -21,6 +21,13 @@ const PRIMITIVE_TYPES = [
   'bool', 'char', 'str',
 ];
 
+// Words this grammar uses as keywords that are nevertheless ordinary Rust
+// identifiers, so Charon can print them as an item/local/field name (`drop`).
+// `name()` accepts them wherever a name is expected.
+const SOFT_KEYWORDS = ['drop'];
+const oneOf = (xs) => (xs.length === 1 ? xs[0] : choice(...xs));
+const name = ($) => choice($.identifier, alias(oneOf(SOFT_KEYWORDS), $.identifier));
+
 const sep1 = (rule, s) => seq(rule, repeat(seq(s, rule)));
 const sepComma = (rule) => optional(seq(sep1(rule, ','), optional(',')));
 const sepBar = (rule) => sep1(rule, '|');
@@ -60,6 +67,9 @@ module.exports = grammar({
     [$.switch_arm, $.binary_operator],
     [$.tuple_expression, $.call_expression],
     [$.qualified_path],
+    // `drop` doubles as a statement keyword and (via `_soft_keyword`) as a
+    // local name, so `drop (...)` is ambiguous until the statement is complete.
+    [$.path_segment, $.drop_statement],
     // An unwind handler ends in a diverging terminator whose own optional `;`
     // can't be told apart from the enclosing statement's optional `;` (LLBC
     // never actually emits one, so either reading is fine).
@@ -92,12 +102,27 @@ module.exports = grammar({
       ),
 
     // ----- Attributes ---------------------------------------------------
-    attribute: ($) => seq('#[', $._attr_contents, ']'),
-    _attr_contents: ($) =>
-      seq(
+    // Charon re-prints unrecognised attributes verbatim from the source
+    // (`Attribute::Unknown`, whose arguments are an opaque token string), so
+    // the contents are parsed as a permissive token tree rather than a fixed
+    // shape: `#[pattern::pass(call[0], "core::...")]`,
+    // `#[deprecated(since = "1.95.0", note = "...")]`, `#[inline(hint)]`.
+    attribute: ($) => seq('#[', repeat($._attr_token), ']'),
+    _attr_token: ($) =>
+      choice(
         $.identifier,
-        optional(seq('(', sepComma(choice($.string, $.integer, $.identifier)), ')')),
+        $.string,
+        $.byte_string,
+        $.char,
+        $.float,
+        $.integer,
+        $.attr_punctuation,
+        seq('(', repeat($._attr_token), ')'),
+        seq('[', repeat($._attr_token), ']'),
+        seq('{', repeat($._attr_token), '}'),
       ),
+    // Any run of punctuation (`::`, `=`, `,`, `->`, ...) inside an attribute.
+    attr_punctuation: ($) => token(prec(-1, /[^\s\w(){}\[\]"']+/)),
 
     visibility: ($) => 'pub',
     extern_abi: ($) => seq('extern', optional($.string)),
@@ -122,7 +147,7 @@ module.exports = grammar({
       ),
 
     parameters: ($) => seq('(', sepComma($.parameter), ')'),
-    parameter: ($) => seq(field('name', $.identifier), ':', field('type', $._type)),
+    parameter: ($) => seq(field('name', name($)), ':', field('type', $._type)),
 
     // A function body is either an opaque/builtin marker or a reference to
     // another function item (a path, possibly with trait-clause refs).
@@ -159,6 +184,7 @@ module.exports = grammar({
         $.storage_statement,
         $.call_statement,
         $.set_discriminant_statement,
+        $.borrowck_statement,
         $.place_mention_statement,
         $.assert_statement,
         $.drop_statement,
@@ -225,6 +251,31 @@ module.exports = grammar({
       seq($.at_name, '(', $.place, ')', '=', $._expression, semi()),
 
     place_mention_statement: ($) => seq('_', '=', $.place, semi()),
+
+    // Borrow-checker-only statements (`BorrowckStatement`), kept by
+    // `--skip-borrowck`-less runs: `fake_read(p)`,
+    // `set_type(typeof(p) <= T)` (`<=`/`>=`/`==` for co-/contra-/invariance),
+    // `set_outlives(T, 'a)` and `predicate_holds(<trait ref>)`.
+    borrowck_statement: ($) =>
+      seq(
+        choice(
+          seq('fake_read', '(', $.place, ')'),
+          seq(
+            'set_type',
+            '(',
+            'typeof',
+            '(',
+            $.place,
+            ')',
+            choice('==', '<=', '>='),
+            $._type,
+            ')',
+          ),
+          seq('set_outlives', '(', $._type, ',', $.lifetime, ')'),
+          seq('predicate_holds', '(', $._type, ')'),
+        ),
+        semi(),
+      ),
 
     // ULLBC: `assert <assert_expr> -> bbN (unwind: bbM)`
     // LLBC:  `<assert_expr> else <abort>`
@@ -361,7 +412,7 @@ module.exports = grammar({
     field_list: ($) => seq('{', sepComma($.field_declaration), '}'),
     field_declaration: ($) =>
       seq(
-        optional(seq(field('name', choice($.identifier, $.integer)), ':')),
+        optional(seq(field('name', choice(name($), $.integer)), ':')),
         field('type', $._type),
       ),
 
@@ -374,10 +425,15 @@ module.exports = grammar({
         optional($.variant_list),
       ),
     variant_list: ($) => seq('{', sepComma($.variant), '}'),
+    // Since Charon's "make all variants be struct variants", every variant with
+    // fields prints them brace-delimited (`Some { _0: T }`); tuple fields are
+    // named `_0`, `_1`, ... The parenthesised form is kept for older dumps.
     variant: ($) =>
       seq(
-        field('name', $.identifier),
-        optional(seq('(', sepComma($.field_declaration), ')')),
+        field('name', name($)),
+        optional(
+          choice($.field_list, seq('(', sepComma($.field_declaration), ')')),
+        ),
       ),
 
     // ----- Traits & impls ----------------------------------------------
@@ -418,7 +474,7 @@ module.exports = grammar({
         optional($.visibility),
         optional('unsafe'),
         'fn',
-        field('name', $.identifier),
+        field('name', name($)),
         optional($.generic_arguments),
         choice(';', seq('=', $._type)),
       ),
@@ -571,8 +627,8 @@ module.exports = grammar({
       seq('<', $._type, 'as', $._type, '>', repeat(seq('::', $.path_segment))),
     path_segment: ($) =>
       choice(
-        prec.dynamic(1, seq($.identifier, repeat1($.generic_arguments))),
-        $.identifier,
+        prec.dynamic(1, seq(name($), repeat1($.generic_arguments))),
+        name($),
         repeat1($.generic_arguments),
         seq($.name_group, repeat($.generic_arguments)),
       ),
@@ -708,7 +764,7 @@ module.exports = grammar({
         '(',
         $._type,
         '.',
-        field('field', choice($.identifier, $.integer)),
+        field('field', choice(name($), $.integer)),
         ')',
         '<',
         sepComma($._type),
@@ -748,7 +804,7 @@ module.exports = grammar({
     aggregate: ($) =>
       prec(2, seq(field('type', $.path), '{', sepComma($.field_initializer), '}')),
     field_initializer: ($) =>
-      seq(field('name', choice($.identifier, $.integer)), ':', field('value', $._expression)),
+      seq(field('name', choice(name($), $.integer)), ':', field('value', $._expression)),
 
     raw_pointer_aggregate: ($) =>
       seq('*', choice('const', 'mut'), '(', sepComma($._expression), ')'),
@@ -787,7 +843,7 @@ module.exports = grammar({
       seq($.place, 'as', 'variant', $._type),
     _place_projection: ($) =>
       choice(
-        seq('.', field('field', choice($.identifier, $.integer, 'metadata'))),
+        seq('.', field('field', choice(name($), $.integer, 'metadata'))),
         $.index_projection,
       ),
     // `place[i]`, `place[i..j]`, `place[i..]`, `place[-1]`
