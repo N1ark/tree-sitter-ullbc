@@ -396,9 +396,18 @@ module.exports = grammar({
       seq(
         optional($.visibility),
         'struct',
-        field('name', $.path),
+        field('name', choice($.path, $.tuple_type_name)),
         optional($.where_clause),
         optional($.field_list),
+      ),
+    // Tuple types are declared as structs named by a builtin path element:
+    // `struct () {}`, `struct (_,)<A>`, `struct (_, _)::<u32, bool>` (mono).
+    tuple_type_name: ($) =>
+      seq(
+        '(',
+        sepComma('_'),
+        ')',
+        optional(seq(optional('::'), $.generic_arguments)),
       ),
     union_item: ($) =>
       seq(
@@ -448,6 +457,8 @@ module.exports = grammar({
     trait_body: ($) => seq('{', repeat($._trait_member), '}'),
     _trait_member: ($) =>
       choice(
+        // Item attributes, e.g. `#[track_caller]` on a method declaration.
+        $.attribute,
         $.proof_clause,
         $.assoc_type,
         $.assoc_const,
@@ -497,6 +508,7 @@ module.exports = grammar({
         '{',
         repeat(
           choice(
+            $.attribute,
             $.proof_clause,
             $.assoc_type,
             $.assoc_const,
@@ -747,14 +759,14 @@ module.exports = grammar({
       ),
     cast_metadata: ($) => seq('at', '[', sepComma($._expression), ']'),
 
-    // `ub_checks<bool>`, `overflow_checks<>` — a nullary operation written as a
-    // bare turbofish with no call parentheses.
+    // `ub_checks`, `ub_checks<bool>`, `overflow_checks<>` — a nullary operation,
+    // bare or with a turbofish, never with call parentheses.
     nullary_op: ($) =>
-      seq(
-        choice('ub_checks', 'overflow_checks', 'contract_checks'),
-        '<',
-        sepComma(choice($._type, $.integer)),
-        '>',
+      prec.right(
+        seq(
+          choice('ub_checks', 'overflow_checks', 'contract_checks'),
+          optional(seq('<', sepComma(choice($._type, $.integer)), '>')),
+        ),
       ),
 
     // `offset_of(Struct<T>[TraitClause0].b)<usize>`

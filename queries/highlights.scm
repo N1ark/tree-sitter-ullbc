@@ -35,6 +35,7 @@
 (function_item name: (path (path_segment (identifier) @function)))
 (method_decl name: (identifier) @function)
 (struct_item name: (path (path_segment (identifier) @type)))
+(struct_item name: (tuple_type_name "_" @type.builtin))
 (union_item name: (path (path_segment (identifier) @type)))
 (enum_item name: (path (path_segment (identifier) @type)))
 (trait_item name: (path (path_segment (identifier) @type)))

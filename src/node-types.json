@@ -3951,6 +3951,10 @@
           "named": true
         },
         {
+          "type": "attribute",
+          "named": true
+        },
+        {
           "type": "function_item",
           "named": true
         },
@@ -6015,6 +6019,10 @@
           {
             "type": "path",
             "named": true
+          },
+          {
+            "type": "tuple_type_name",
+            "named": true
           }
         ]
       }
@@ -6321,6 +6329,10 @@
           "named": true
         },
         {
+          "type": "attribute",
+          "named": true
+        },
+        {
           "type": "function_item",
           "named": true
         },
@@ -6546,6 +6558,21 @@
         },
         {
           "type": "wildcard_type",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "tuple_type_name",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "generic_arguments",
           "named": true
         }
       ]
