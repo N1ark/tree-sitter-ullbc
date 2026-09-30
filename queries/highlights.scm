@@ -15,6 +15,8 @@
 (builtin_body) @constant.builtin
 (opaque_const) @constant.builtin
 (no_provenance) @constant.builtin
+(uninit_byte) @constant.builtin
+(variadic) @punctuation.special
 
 ; ----- Labels / disambiguators -------------------------------------------
 (block_id) @label
@@ -30,12 +32,12 @@
 (never_type) @type.builtin
 (unit_type) @type.builtin
 (wildcard_type) @type.builtin
+(tuple_path_elem "_" @type.builtin)
 
 ; ----- Declaration names --------------------------------------------------
 (function_item name: (path (path_segment (identifier) @function)))
 (method_decl name: (identifier) @function)
 (struct_item name: (path (path_segment (identifier) @type)))
-(struct_item name: (tuple_type_name "_" @type.builtin))
 (union_item name: (path (path_segment (identifier) @type)))
 (enum_item name: (path (path_segment (identifier) @type)))
 (trait_item name: (path (path_segment (identifier) @type)))
@@ -48,6 +50,7 @@
 ; ----- Calls / builtins ---------------------------------------------------
 (call_expression function: (path (path_segment (identifier) @function)))
 (at_name) @function.builtin
+"RawMemory" @function.builtin
 (type_error) @function.builtin
 
 ; ----- Aggregates ---------------------------------------------------------

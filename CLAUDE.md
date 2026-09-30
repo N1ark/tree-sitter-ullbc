@@ -119,6 +119,11 @@ after a clean full run writes it to `scripts/tested-charon.txt`.
 - **The external scanner** (`src/scanner.c`) supplies `name_group` (`{...}` name
   disambiguators). It's rarely the culprit, but if a `{...}` name fails to
   tokenise, look there.
+- **Stale compiled parser.** The tree-sitter CLI caches one compiled library
+  per grammar *name* and only rebuilds when `src/parser.c` is newer. Parsing
+  with another checkout of this grammar (e.g. an old-rev worktree) overwrites
+  that cache, and later runs here silently use the wrong parser. If results
+  look inexplicable, `touch src/parser.c`.
 - **`.out` files that aren't IR** (rustc panics/diagnostics) are skipped by the
   tool: only files whose first line is `# Final {U,}LLBC before serialization:`
   are checked. A "0 dumps found" error means you pointed it at a non-Charon dir.

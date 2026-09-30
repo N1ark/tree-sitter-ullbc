@@ -79,6 +79,11 @@ module.exports = grammar({
     // terminator (closing it) or an interior statement; GLR picks the reading
     // that yields a complete parse.
     [$._statement, $.unwind_block],
+    // `(_, _)::<T>` may end a tuple name or start a `::`-separated path tail.
+    [$.tuple_type_name],
+    // `(_, _)` is a tuple type unless a `::` path tail follows.
+    [$.tuple_path_elem, $.wildcard_type],
+    [$.tuple_path_elem, $.unit_expression],
   ],
 
   rules: {
@@ -146,7 +151,9 @@ module.exports = grammar({
         ),
       ),
 
-    parameters: ($) => seq('(', sepComma($.parameter), ')'),
+    // C-variadic functions end their parameter list with `...`.
+    parameters: ($) => seq('(', sepComma(choice($.parameter, $.variadic)), ')'),
+    variadic: ($) => '...',
     parameter: ($) => seq(field('name', name($)), ':', field('type', $._type)),
 
     // A function body is either an opaque/builtin marker or a reference to
@@ -340,8 +347,18 @@ module.exports = grammar({
         semi(),
       ),
 
+    // ULLBC: `match op -> Enum::A: bbN, Enum::B: bbM`
+    // LLBC:  `match op { Enum::A => { ... }, _ => { ... } }`
     match_statement: ($) =>
-      seq('match', field('discriminant', $._discriminant), '{', repeat($.match_arm), '}'),
+      seq(
+        'match',
+        field('discriminant', $._discriminant),
+        choice(
+          seq('->', sep1($.switch_target, ',')),
+          seq('{', repeat($.match_arm), '}'),
+        ),
+        semi(),
+      ),
     match_arm: ($) =>
       seq(
         field('pattern', sepBar(choice($.path, $.integer, '_'))),
@@ -401,14 +418,14 @@ module.exports = grammar({
         optional($.field_list),
       ),
     // Tuple types are declared as structs named by a builtin path element:
-    // `struct () {}`, `struct (_,)<A>`, `struct (_, _)::<u32, bool>` (mono).
+    // `struct () {}`, `struct (_,)<A>`, `struct (_, _)::<u32, bool>` (mono),
+    // `struct (_, _)::<&_ mut _, _><'_0, T0, T1>` (partial mono).
     tuple_type_name: ($) =>
       seq(
-        '(',
-        sepComma('_'),
-        ')',
-        optional(seq(optional('::'), $.generic_arguments)),
+        $.tuple_path_elem,
+        repeat(choice($.generic_arguments, seq('::', $.generic_arguments))),
       ),
+    tuple_path_elem: ($) => seq('(', sepComma('_'), ')'),
     union_item: ($) =>
       seq(
         optional($.visibility),
@@ -532,7 +549,7 @@ module.exports = grammar({
         ':',
         field('type', $._type),
         optional($.where_clause),
-        optional(seq('=', field('value', $._expression))),
+        optional(seq('=', field('value', $._expression), optional($.with_metadata))),
       ),
 
     type_alias_item: ($) =>
@@ -540,7 +557,7 @@ module.exports = grammar({
         optional($.visibility),
         optional('opaque'),
         'type',
-        field('name', $.path),
+        field('name', choice($.path, $.tuple_type_name)),
         optional($.where_clause),
         optional(seq('=', field('value', $._type))),
       ),
@@ -605,7 +622,7 @@ module.exports = grammar({
         'fn',
         optional($.generic_arguments),
         '(',
-        sepComma($._type),
+        sepComma(choice($._type, $.variadic)),
         ')',
         optional(seq('->', $._type)),
       ),
@@ -634,6 +651,9 @@ module.exports = grammar({
       choice(
         seq(optional('::'), sep1($.path_segment, '::')),
         $.qualified_path,
+        // Items under a tuple type: `(_, _)::impl_Destruct_for_tuple::drop_glue`.
+        // Requires a `::` tail so a bare `(_, _)` stays a tuple type.
+        seq($.tuple_type_name, repeat1(seq('::', $.path_segment))),
       ),
     qualified_path: ($) =>
       seq('<', $._type, 'as', $._type, '>', repeat(seq('::', $.path_segment))),
@@ -681,6 +701,7 @@ module.exports = grammar({
         $.unary_expression,
         $.binary_expression,
         $.aggregate,
+        $.raw_memory,
         $.raw_pointer_aggregate,
         $.array_expression,
         $.repeat_expression,
@@ -721,8 +742,14 @@ module.exports = grammar({
         $.clause_typed,
         $.no_provenance,
         $.opaque_const,
+        $.raw_memory,
         $.path,
       ),
+    // `RawMemory(0x01, --, &Z[0])`: a byte is a value, `--` (uninit) or a
+    // provenance pointer.
+    raw_memory: ($) =>
+      seq('RawMemory', '(', sepComma(choice($._expression, $.uninit_byte)), ')'),
+    uninit_byte: ($) => '--',
     // `Opaque(reason)` carries free-form text.
     opaque_const: ($) => token(seq('Opaque(', /[^)]*/, ')')),
     no_provenance: ($) => seq('no-provenance', $.integer),
@@ -731,14 +758,30 @@ module.exports = grammar({
     // quoted `char` literals). Reachable only where a constant is expected.
     raw_char: ($) => token(prec(-2, /[^\s]/)),
 
+    // Right-associative: a trailing `with_metadata(..)` binds to the borrow
+    // rather than to an enclosing global's value.
     borrow: ($) =>
-      seq(
+      prec.right(seq(
         $.borrow_kind,
-        // Usually a place; in constants also an array or a `vtable_of(...)` /
-        // similar call, e.g. `const &vtable_of({built_in impl ... })`.
-        choice($.place, $.array_expression, $.call_expression),
+        // Usually a place; in constants also a value (`&2u32`, `&Outer { .. }`,
+        // `&(5u8, [..])`) or a `vtable_of(...)` / similar call, e.g.
+        // `const &vtable_of({built_in impl ... })`.
+        choice(
+          $.place,
+          $.array_expression,
+          $.call_expression,
+          $.aggregate,
+          $.tuple_expression,
+          $.unit_expression,
+          $.integer,
+          $.float,
+          $.boolean,
+          $.string,
+          $.byte_string,
+          $.char,
+        ),
         optional($.with_metadata),
-      ),
+      )),
     borrow_kind: ($) =>
       choice(
         seq('&', 'raw', choice('const', 'mut')),

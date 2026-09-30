@@ -286,7 +286,10 @@ for f in "${worklist[@]}"; do
   # as-is (so you can point at anything).
   if [ "${#files[@]}" -eq 0 ]; then is_ir_dump "$f" || continue; fi
   total=$((total + 1))
-  if "$TS" parse "$f" 2>/dev/null | grep -qE '\((ERROR|MISSING)'; then
+  # `|| true`: `tree-sitter parse` exits non-zero on parse errors (and on
+  # SIGPIPE once `grep -q` stops reading); under pipefail that would make a
+  # failing file look clean.
+  if { "$TS" parse "$f" 2>/dev/null || true; } | grep -qE '\((ERROR|MISSING)'; then
     fail=$((fail + 1))
     failed+=("$f")
   fi
