@@ -40,6 +40,10 @@
           "named": true
         },
         {
+          "type": "call_target",
+          "named": true
+        },
+        {
           "type": "cast_expression",
           "named": true
         },
@@ -56,11 +60,23 @@
           "named": true
         },
         {
+          "type": "no_provenance",
+          "named": true
+        },
+        {
+          "type": "noretag_use",
+          "named": true
+        },
+        {
           "type": "nullary_op",
           "named": true
         },
         {
           "type": "offset_of",
+          "named": true
+        },
+        {
+          "type": "opaque_const",
           "named": true
         },
         {
@@ -97,6 +113,10 @@
         },
         {
           "type": "unit_expression",
+          "named": true
+        },
+        {
+          "type": "unwind_block",
           "named": true
         }
       ]
@@ -185,11 +205,23 @@
           "named": true
         },
         {
+          "type": "no_provenance",
+          "named": true
+        },
+        {
+          "type": "noretag_use",
+          "named": true
+        },
+        {
           "type": "nullary_op",
           "named": true
         },
         {
           "type": "offset_of",
+          "named": true
+        },
+        {
+          "type": "opaque_const",
           "named": true
         },
         {
@@ -312,11 +344,23 @@
           "named": true
         },
         {
+          "type": "no_provenance",
+          "named": true
+        },
+        {
+          "type": "noretag_use",
+          "named": true
+        },
+        {
           "type": "nullary_op",
           "named": true
         },
         {
           "type": "offset_of",
+          "named": true
+        },
+        {
+          "type": "opaque_const",
           "named": true
         },
         {
@@ -393,6 +437,129 @@
         },
         {
           "type": "wildcard_type",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "asm_operand",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "aggregate",
+          "named": true
+        },
+        {
+          "type": "array_expression",
+          "named": true
+        },
+        {
+          "type": "binary_expression",
+          "named": true
+        },
+        {
+          "type": "boolean",
+          "named": true
+        },
+        {
+          "type": "borrow",
+          "named": true
+        },
+        {
+          "type": "builtin_call",
+          "named": true
+        },
+        {
+          "type": "byte_string",
+          "named": true
+        },
+        {
+          "type": "call_expression",
+          "named": true
+        },
+        {
+          "type": "cast_expression",
+          "named": true
+        },
+        {
+          "type": "char",
+          "named": true
+        },
+        {
+          "type": "float",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "integer",
+          "named": true
+        },
+        {
+          "type": "no_provenance",
+          "named": true
+        },
+        {
+          "type": "noretag_use",
+          "named": true
+        },
+        {
+          "type": "nullary_op",
+          "named": true
+        },
+        {
+          "type": "offset_of",
+          "named": true
+        },
+        {
+          "type": "opaque_const",
+          "named": true
+        },
+        {
+          "type": "operand",
+          "named": true
+        },
+        {
+          "type": "path",
+          "named": true
+        },
+        {
+          "type": "place",
+          "named": true
+        },
+        {
+          "type": "raw_memory",
+          "named": true
+        },
+        {
+          "type": "raw_pointer_aggregate",
+          "named": true
+        },
+        {
+          "type": "repeat_expression",
+          "named": true
+        },
+        {
+          "type": "string",
+          "named": true
+        },
+        {
+          "type": "tuple_expression",
+          "named": true
+        },
+        {
+          "type": "unary_expression",
+          "named": true
+        },
+        {
+          "type": "unit_expression",
           "named": true
         }
       ]
@@ -485,11 +652,23 @@
           "named": true
         },
         {
+          "type": "no_provenance",
+          "named": true
+        },
+        {
+          "type": "noretag_use",
+          "named": true
+        },
+        {
           "type": "nullary_op",
           "named": true
         },
         {
           "type": "offset_of",
+          "named": true
+        },
+        {
+          "type": "opaque_const",
           "named": true
         },
         {
@@ -596,11 +775,23 @@
           "named": true
         },
         {
+          "type": "no_provenance",
+          "named": true
+        },
+        {
+          "type": "noretag_use",
+          "named": true
+        },
+        {
           "type": "nullary_op",
           "named": true
         },
         {
           "type": "offset_of",
+          "named": true
+        },
+        {
+          "type": "opaque_const",
           "named": true
         },
         {
@@ -713,11 +904,23 @@
             "named": true
           },
           {
+            "type": "no_provenance",
+            "named": true
+          },
+          {
+            "type": "noretag_use",
+            "named": true
+          },
+          {
             "type": "nullary_op",
             "named": true
           },
           {
             "type": "offset_of",
+            "named": true
+          },
+          {
+            "type": "opaque_const",
             "named": true
           },
           {
@@ -938,11 +1141,23 @@
           "named": true
         },
         {
+          "type": "no_provenance",
+          "named": true
+        },
+        {
+          "type": "noretag_use",
+          "named": true
+        },
+        {
           "type": "nullary_op",
           "named": true
         },
         {
           "type": "offset_of",
+          "named": true
+        },
+        {
+          "type": "opaque_const",
           "named": true
         },
         {
@@ -1182,6 +1397,10 @@
           "named": true
         },
         {
+          "type": "block_kind",
+          "named": true
+        },
+        {
           "type": "borrowck_statement",
           "named": true
         },
@@ -1313,11 +1532,23 @@
           "named": true
         },
         {
+          "type": "no_provenance",
+          "named": true
+        },
+        {
+          "type": "noretag_use",
+          "named": true
+        },
+        {
           "type": "nullary_op",
           "named": true
         },
         {
           "type": "offset_of",
+          "named": true
+        },
+        {
+          "type": "opaque_const",
           "named": true
         },
         {
@@ -1369,6 +1600,85 @@
       "types": [
         {
           "type": "checked_binary_operator",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "binder_predicates",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "array_type",
+          "named": true
+        },
+        {
+          "type": "clause_typed",
+          "named": true
+        },
+        {
+          "type": "dyn_type",
+          "named": true
+        },
+        {
+          "type": "fn_type",
+          "named": true
+        },
+        {
+          "type": "hrtb_type",
+          "named": true
+        },
+        {
+          "type": "lifetime",
+          "named": true
+        },
+        {
+          "type": "never_type",
+          "named": true
+        },
+        {
+          "type": "path",
+          "named": true
+        },
+        {
+          "type": "pointer_type",
+          "named": true
+        },
+        {
+          "type": "primitive_type",
+          "named": true
+        },
+        {
+          "type": "reference_type",
+          "named": true
+        },
+        {
+          "type": "refined_type",
+          "named": true
+        },
+        {
+          "type": "slice_type",
+          "named": true
+        },
+        {
+          "type": "tuple_type",
+          "named": true
+        },
+        {
+          "type": "type_error",
+          "named": true
+        },
+        {
+          "type": "unit_type",
+          "named": true
+        },
+        {
+          "type": "wildcard_type",
           "named": true
         }
       ]
@@ -1474,6 +1784,11 @@
     }
   },
   {
+    "type": "block_kind",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "boolean",
     "named": true,
     "fields": {}
@@ -1500,6 +1815,10 @@
         },
         {
           "type": "borrow_kind",
+          "named": true
+        },
+        {
+          "type": "builtin_body",
           "named": true
         },
         {
@@ -1828,11 +2147,23 @@
           "named": true
         },
         {
+          "type": "no_provenance",
+          "named": true
+        },
+        {
+          "type": "noretag_use",
+          "named": true
+        },
+        {
           "type": "nullary_op",
           "named": true
         },
         {
           "type": "offset_of",
+          "named": true
+        },
+        {
+          "type": "opaque_const",
           "named": true
         },
         {
@@ -1979,7 +2310,19 @@
             "named": true
           },
           {
+            "type": "generic_arguments",
+            "named": true
+          },
+          {
             "type": "integer",
+            "named": true
+          },
+          {
+            "type": "no_provenance",
+            "named": true
+          },
+          {
+            "type": "noretag_use",
             "named": true
           },
           {
@@ -1988,6 +2331,10 @@
           },
           {
             "type": "offset_of",
+            "named": true
+          },
+          {
+            "type": "opaque_const",
             "named": true
           },
           {
@@ -2086,11 +2433,23 @@
           "named": true
         },
         {
+          "type": "no_provenance",
+          "named": true
+        },
+        {
+          "type": "noretag_use",
+          "named": true
+        },
+        {
           "type": "nullary_op",
           "named": true
         },
         {
           "type": "offset_of",
+          "named": true
+        },
+        {
+          "type": "opaque_const",
           "named": true
         },
         {
@@ -2255,11 +2614,23 @@
           "named": true
         },
         {
+          "type": "no_provenance",
+          "named": true
+        },
+        {
+          "type": "noretag_use",
+          "named": true
+        },
+        {
           "type": "nullary_op",
           "named": true
         },
         {
           "type": "offset_of",
+          "named": true
+        },
+        {
+          "type": "opaque_const",
           "named": true
         },
         {
@@ -2398,11 +2769,23 @@
           "named": true
         },
         {
+          "type": "no_provenance",
+          "named": true
+        },
+        {
+          "type": "noretag_use",
+          "named": true
+        },
+        {
           "type": "nullary_op",
           "named": true
         },
         {
           "type": "offset_of",
+          "named": true
+        },
+        {
+          "type": "opaque_const",
           "named": true
         },
         {
@@ -3003,6 +3386,11 @@
     }
   },
   {
+    "type": "extern_item",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "field_declaration",
     "named": true,
     "fields": {
@@ -3163,11 +3551,23 @@
             "named": true
           },
           {
+            "type": "no_provenance",
+            "named": true
+          },
+          {
+            "type": "noretag_use",
+            "named": true
+          },
+          {
             "type": "nullary_op",
             "named": true
           },
           {
             "type": "offset_of",
+            "named": true
+          },
+          {
+            "type": "opaque_const",
             "named": true
           },
           {
@@ -3320,6 +3720,10 @@
       "multiple": true,
       "required": false,
       "types": [
+        {
+          "type": "binder_predicates",
+          "named": true
+        },
         {
           "type": "lifetime",
           "named": true
@@ -3509,6 +3913,10 @@
           "named": true
         },
         {
+          "type": "extern_item",
+          "named": true
+        },
+        {
           "type": "visibility",
           "named": true
         },
@@ -3626,6 +4034,10 @@
       "multiple": true,
       "required": false,
       "types": [
+        {
+          "type": "binder_predicates",
+          "named": true
+        },
         {
           "type": "generic_argument",
           "named": true
@@ -3770,11 +4182,23 @@
             "named": true
           },
           {
+            "type": "no_provenance",
+            "named": true
+          },
+          {
+            "type": "noretag_use",
+            "named": true
+          },
+          {
             "type": "nullary_op",
             "named": true
           },
           {
             "type": "offset_of",
+            "named": true
+          },
+          {
+            "type": "opaque_const",
             "named": true
           },
           {
@@ -3820,6 +4244,10 @@
       "multiple": true,
       "required": false,
       "types": [
+        {
+          "type": "extern_item",
+          "named": true
+        },
         {
           "type": "visibility",
           "named": true
@@ -4257,6 +4685,10 @@
           "named": true
         },
         {
+          "type": "negative_impl",
+          "named": true
+        },
+        {
           "type": "visibility",
           "named": true
         },
@@ -4324,11 +4756,23 @@
           "named": true
         },
         {
+          "type": "no_provenance",
+          "named": true
+        },
+        {
+          "type": "noretag_use",
+          "named": true
+        },
+        {
           "type": "nullary_op",
           "named": true
         },
         {
           "type": "offset_of",
+          "named": true
+        },
+        {
+          "type": "opaque_const",
           "named": true
         },
         {
@@ -4387,6 +4831,10 @@
           "named": true
         },
         {
+          "type": "asm_operand",
+          "named": true
+        },
+        {
           "type": "asm_targets",
           "named": true
         },
@@ -4431,11 +4879,23 @@
           "named": true
         },
         {
+          "type": "no_provenance",
+          "named": true
+        },
+        {
+          "type": "noretag_use",
+          "named": true
+        },
+        {
           "type": "nullary_op",
           "named": true
         },
         {
           "type": "offset_of",
+          "named": true
+        },
+        {
+          "type": "opaque_const",
           "named": true
         },
         {
@@ -4753,6 +5213,11 @@
     }
   },
   {
+    "type": "negative_impl",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "never_type",
     "named": true,
     "fields": {}
@@ -4776,6 +5241,21 @@
     "type": "nop_statement",
     "named": true,
     "fields": {}
+  },
+  {
+    "type": "noretag_use",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "operand",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "not_null_pattern",
@@ -4952,6 +5432,121 @@
     }
   },
   {
+    "type": "offset_projection",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "aggregate",
+          "named": true
+        },
+        {
+          "type": "array_expression",
+          "named": true
+        },
+        {
+          "type": "binary_expression",
+          "named": true
+        },
+        {
+          "type": "boolean",
+          "named": true
+        },
+        {
+          "type": "borrow",
+          "named": true
+        },
+        {
+          "type": "builtin_call",
+          "named": true
+        },
+        {
+          "type": "byte_string",
+          "named": true
+        },
+        {
+          "type": "call_expression",
+          "named": true
+        },
+        {
+          "type": "cast_expression",
+          "named": true
+        },
+        {
+          "type": "char",
+          "named": true
+        },
+        {
+          "type": "float",
+          "named": true
+        },
+        {
+          "type": "integer",
+          "named": true
+        },
+        {
+          "type": "no_provenance",
+          "named": true
+        },
+        {
+          "type": "noretag_use",
+          "named": true
+        },
+        {
+          "type": "nullary_op",
+          "named": true
+        },
+        {
+          "type": "offset_of",
+          "named": true
+        },
+        {
+          "type": "opaque_const",
+          "named": true
+        },
+        {
+          "type": "operand",
+          "named": true
+        },
+        {
+          "type": "place",
+          "named": true
+        },
+        {
+          "type": "raw_memory",
+          "named": true
+        },
+        {
+          "type": "raw_pointer_aggregate",
+          "named": true
+        },
+        {
+          "type": "repeat_expression",
+          "named": true
+        },
+        {
+          "type": "string",
+          "named": true
+        },
+        {
+          "type": "tuple_expression",
+          "named": true
+        },
+        {
+          "type": "unary_expression",
+          "named": true
+        },
+        {
+          "type": "unit_expression",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "operand",
     "named": true,
     "fields": {},
@@ -5028,7 +5623,15 @@
           "named": true
         },
         {
+          "type": "repeat_expression",
+          "named": true
+        },
+        {
           "type": "string",
+          "named": true
+        },
+        {
+          "type": "type_id",
           "named": true
         },
         {
@@ -5244,6 +5847,10 @@
           "named": true
         },
         {
+          "type": "offset_projection",
+          "named": true
+        },
+        {
           "type": "parenthesized_place",
           "named": true
         },
@@ -5378,6 +5985,10 @@
           "named": true
         },
         {
+          "type": "for_lifetimes",
+          "named": true
+        },
+        {
           "type": "hrtb_type",
           "named": true
         },
@@ -5423,6 +6034,29 @@
         },
         {
           "type": "wildcard_type",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "provenance_byte",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "integer",
+          "named": true
+        },
+        {
+          "type": "path",
+          "named": true
+        },
+        {
+          "type": "type_id",
           "named": true
         }
       ]
@@ -5587,6 +6221,14 @@
           "named": true
         },
         {
+          "type": "no_provenance",
+          "named": true
+        },
+        {
+          "type": "noretag_use",
+          "named": true
+        },
+        {
           "type": "nullary_op",
           "named": true
         },
@@ -5595,11 +6237,19 @@
           "named": true
         },
         {
+          "type": "opaque_const",
+          "named": true
+        },
+        {
           "type": "operand",
           "named": true
         },
         {
           "type": "place",
+          "named": true
+        },
+        {
+          "type": "provenance_byte",
           "named": true
         },
         {
@@ -5694,11 +6344,23 @@
           "named": true
         },
         {
+          "type": "no_provenance",
+          "named": true
+        },
+        {
+          "type": "noretag_use",
+          "named": true
+        },
+        {
           "type": "nullary_op",
           "named": true
         },
         {
           "type": "offset_of",
+          "named": true
+        },
+        {
+          "type": "opaque_const",
           "named": true
         },
         {
@@ -5959,11 +6621,23 @@
           "named": true
         },
         {
+          "type": "no_provenance",
+          "named": true
+        },
+        {
+          "type": "noretag_use",
+          "named": true
+        },
+        {
           "type": "nullary_op",
           "named": true
         },
         {
           "type": "offset_of",
+          "named": true
+        },
+        {
+          "type": "opaque_const",
           "named": true
         },
         {
@@ -6071,11 +6745,23 @@
           "named": true
         },
         {
+          "type": "no_provenance",
+          "named": true
+        },
+        {
+          "type": "noretag_use",
+          "named": true
+        },
+        {
           "type": "nullary_op",
           "named": true
         },
         {
           "type": "offset_of",
+          "named": true
+        },
+        {
+          "type": "opaque_const",
           "named": true
         },
         {
@@ -6354,11 +7040,23 @@
             "named": true
           },
           {
+            "type": "no_provenance",
+            "named": true
+          },
+          {
+            "type": "noretag_use",
+            "named": true
+          },
+          {
             "type": "nullary_op",
             "named": true
           },
           {
             "type": "offset_of",
+            "named": true
+          },
+          {
+            "type": "opaque_const",
             "named": true
           },
           {
@@ -6454,7 +7152,7 @@
     "named": true,
     "fields": {
       "value": {
-        "multiple": false,
+        "multiple": true,
         "required": true,
         "types": [
           {
@@ -6506,11 +7204,27 @@
             "named": true
           },
           {
+            "type": "label",
+            "named": false
+          },
+          {
+            "type": "no_provenance",
+            "named": true
+          },
+          {
+            "type": "noretag_use",
+            "named": true
+          },
+          {
             "type": "nullary_op",
             "named": true
           },
           {
             "type": "offset_of",
+            "named": true
+          },
+          {
+            "type": "opaque_const",
             "named": true
           },
           {
@@ -6552,6 +7266,10 @@
           {
             "type": "unit_expression",
             "named": true
+          },
+          {
+            "type": "unwind",
+            "named": false
           }
         ]
       }
@@ -6701,11 +7419,23 @@
           "named": true
         },
         {
+          "type": "no_provenance",
+          "named": true
+        },
+        {
+          "type": "noretag_use",
+          "named": true
+        },
+        {
           "type": "nullary_op",
           "named": true
         },
         {
           "type": "offset_of",
+          "named": true
+        },
+        {
+          "type": "opaque_const",
           "named": true
         },
         {
@@ -6940,6 +7670,10 @@
       "required": false,
       "types": [
         {
+          "type": "extern_item",
+          "named": true
+        },
+        {
           "type": "visibility",
           "named": true
         },
@@ -6960,6 +7694,81 @@
       "types": [
         {
           "type": "string",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "type_id",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "array_type",
+          "named": true
+        },
+        {
+          "type": "clause_typed",
+          "named": true
+        },
+        {
+          "type": "dyn_type",
+          "named": true
+        },
+        {
+          "type": "fn_type",
+          "named": true
+        },
+        {
+          "type": "hrtb_type",
+          "named": true
+        },
+        {
+          "type": "never_type",
+          "named": true
+        },
+        {
+          "type": "path",
+          "named": true
+        },
+        {
+          "type": "pointer_type",
+          "named": true
+        },
+        {
+          "type": "primitive_type",
+          "named": true
+        },
+        {
+          "type": "reference_type",
+          "named": true
+        },
+        {
+          "type": "refined_type",
+          "named": true
+        },
+        {
+          "type": "slice_type",
+          "named": true
+        },
+        {
+          "type": "tuple_type",
+          "named": true
+        },
+        {
+          "type": "type_error",
+          "named": true
+        },
+        {
+          "type": "unit_type",
+          "named": true
+        },
+        {
+          "type": "wildcard_type",
           "named": true
         }
       ]
@@ -7026,11 +7835,23 @@
           "named": true
         },
         {
+          "type": "no_provenance",
+          "named": true
+        },
+        {
+          "type": "noretag_use",
+          "named": true
+        },
+        {
           "type": "nullary_op",
           "named": true
         },
         {
           "type": "offset_of",
+          "named": true
+        },
+        {
+          "type": "opaque_const",
           "named": true
         },
         {
@@ -7575,11 +8396,23 @@
           "named": true
         },
         {
+          "type": "no_provenance",
+          "named": true
+        },
+        {
+          "type": "noretag_use",
+          "named": true
+        },
+        {
           "type": "nullary_op",
           "named": true
         },
         {
           "type": "offset_of",
+          "named": true
+        },
+        {
+          "type": "opaque_const",
           "named": true
         },
         {
@@ -7738,6 +8571,10 @@
     "named": false
   },
   {
+    "type": "TypeId(",
+    "named": false
+  },
+  {
     "type": "[",
     "named": false
   },
@@ -7786,6 +8623,10 @@
     "named": false
   },
   {
+    "type": "branch",
+    "named": false
+  },
+  {
     "type": "break",
     "named": false
   },
@@ -7816,6 +8657,10 @@
   {
     "type": "checked_unary_operator",
     "named": true
+  },
+  {
+    "type": "cleanup",
+    "named": false
   },
   {
     "type": "cmp",
@@ -7886,6 +8731,10 @@
     "named": false
   },
   {
+    "type": "fallthrough",
+    "named": false
+  },
+  {
     "type": "false",
     "named": false
   },
@@ -7943,6 +8792,18 @@
     "named": false
   },
   {
+    "type": "in",
+    "named": false
+  },
+  {
+    "type": "inlateout",
+    "named": false
+  },
+  {
+    "type": "inout",
+    "named": false
+  },
+  {
     "type": "integer",
     "named": true
   },
@@ -7952,6 +8813,14 @@
   },
   {
     "type": "isize",
+    "named": false
+  },
+  {
+    "type": "label",
+    "named": false
+  },
+  {
+    "type": "lateout",
     "named": false
   },
   {
@@ -7988,6 +8857,10 @@
     "named": false
   },
   {
+    "type": "naked_asm!",
+    "named": false
+  },
+  {
     "type": "name_group",
     "named": true
   },
@@ -8004,11 +8877,19 @@
     "named": false
   },
   {
+    "type": "noretag",
+    "named": false
+  },
+  {
     "type": "null",
     "named": false
   },
   {
     "type": "offset",
+    "named": false
+  },
+  {
+    "type": "offset!",
     "named": false
   },
   {
@@ -8024,7 +8905,15 @@
     "named": true
   },
   {
+    "type": "options",
+    "named": false
+  },
+  {
     "type": "otherwise",
+    "named": false
+  },
+  {
+    "type": "out",
     "named": false
   },
   {
@@ -8096,7 +8985,15 @@
     "named": false
   },
   {
+    "type": "sym",
+    "named": false
+  },
+  {
     "type": "target",
+    "named": false
+  },
+  {
+    "type": "terminate",
     "named": false
   },
   {
@@ -8225,6 +9122,10 @@
   },
   {
     "type": "with_metadata",
+    "named": false
+  },
+  {
+    "type": "wrapping_offset!",
     "named": false
   },
   {

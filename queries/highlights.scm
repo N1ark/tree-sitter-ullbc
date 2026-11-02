@@ -51,6 +51,7 @@
 (call_expression function: (path (path_segment (identifier) @function)))
 (at_name) @function.builtin
 "RawMemory" @function.builtin
+"TypeId(" @function.builtin
 (type_error) @function.builtin
 
 ; ----- Aggregates ---------------------------------------------------------
@@ -68,6 +69,8 @@
 ; ----- Keywords -----------------------------------------------------------
 (visibility) @keyword
 (non_dyn_compatible) @keyword
+(extern_item) @keyword
+(negative_impl) @operator
 
 [
   "fn"
@@ -105,6 +108,7 @@
 [
   "move"
   "copy"
+  "noretag"
 ] @keyword
 
 [
@@ -138,7 +142,24 @@
   "otherwise"
   "unwind"
   "asm!"
+  "naked_asm!"
   "target"
+  "label"
+  "fallthrough"
+  "cleanup"
+  "terminate"
+] @keyword
+
+; Inline-asm operand kinds.
+[
+  "in"
+  "out"
+  "lateout"
+  "inout"
+  "inlateout"
+  "sym"
+  "options"
+  "branch"
 ] @keyword
 
 [
@@ -153,6 +174,8 @@
   "variant"
   "at"
   "no-provenance"
+  "offset!"
+  "wrapping_offset!"
 ] @keyword.operator
 
 ; ----- Operators ----------------------------------------------------------

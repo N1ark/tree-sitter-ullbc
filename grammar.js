@@ -84,6 +84,12 @@ module.exports = grammar({
     // `(_, _)` is a tuple type unless a `::` path tail follows.
     [$.tuple_path_elem, $.wildcard_type],
     [$.tuple_path_elem, $.unit_expression],
+    // `impl !Send for S` vs. `impl ! ...`: decided by the following token.
+    [$.negative_impl, $.never_type],
+    // In `RawMemory(..)`, `&ARR+4[0]` is a provenance byte; `&ARR[0]` a borrow.
+    [$.provenance_byte, $.borrow_kind],
+    // `extern fn f()`: an `extern` item, or a Rust-ABI `extern fn`.
+    [$.extern_item, $.extern_abi],
   ],
 
   rules: {
@@ -130,12 +136,16 @@ module.exports = grammar({
     attr_punctuation: ($) => token(prec(-1, /[^\s\w(){}\[\]"']+/)),
 
     visibility: ($) => 'pub',
+    // Item declared in an `extern { }` block: `extern unsafe static X: u32`,
+    // `extern opaque type T`, `extern unsafe extern "C" fn f()`.
+    extern_item: ($) => 'extern',
     extern_abi: ($) => seq('extern', optional($.string)),
 
     // ----- Functions ----------------------------------------------------
     function_item: ($) =>
       seq(
         optional($.visibility),
+        optional($.extern_item),
         optional('unsafe'),
         optional($.extern_abi),
         'fn',
@@ -164,7 +174,7 @@ module.exports = grammar({
       token(
         choice(
           seq('<intrinsic:', /[^>]*/, '>'),
-          seq('<extern:', /[^>]*/, '>'),
+          seq('<extern:', /([^<>]|<[^<>]*>)*/, '>'),
           '<opaque>',
           '<built-in>',
           '<global>',
@@ -178,11 +188,20 @@ module.exports = grammar({
       seq('let', field('name', $.path), ':', field('type', $._type), ';'),
 
     // ----- Basic blocks (ULLBC) ----------------------------------------
+    // `bb0: {`, `bb9 (cleanup): {`, `bb3 (terminate): {`.
     basic_block: ($) =>
-      seq(field('label', $.block_id), '{', repeat($._statement), '}'),
+      seq(
+        field('label', $.block_id),
+        optional($.block_kind),
+        optional(':'),
+        '{',
+        repeat($._statement),
+        '}',
+      ),
+    block_kind: ($) => seq('(', choice('cleanup', 'terminate'), ')'),
 
-    // `bb0:` / `bb0` (also legacy `block@0`).
-    block_id: ($) => token(seq(choice('block@', 'bb'), /\d+/, optional(':'))),
+    // `bb0` (also legacy `block@0`).
+    block_id: ($) => token(seq(choice('block@', 'bb'), /\d+/)),
 
     // ----- Statements ---------------------------------------------------
     _statement: ($) =>
@@ -252,7 +271,11 @@ module.exports = grammar({
 
     _call_arrow: ($) => seq('->', $.call_target),
     call_target: ($) =>
-      seq($.block_id, optional(seq('(', 'unwind', ':', $.block_id, ')'))),
+      choice(
+        seq($.block_id, optional($._unwind_target)),
+        $._unwind_target,
+      ),
+    _unwind_target: ($) => seq('(', 'unwind', ':', $.block_id, ')'),
 
     set_discriminant_statement: ($) =>
       seq($.at_name, '(', $.place, ')', '=', $._expression, semi()),
@@ -325,7 +348,14 @@ module.exports = grammar({
         semi(),
       ),
     switch_target: ($) =>
-      seq(field('value', choice($._expression, 'otherwise')), ':', $.block_id),
+      seq(
+        field(
+          'value',
+          choice($._expression, 'otherwise', 'unwind', seq('label', $.integer)),
+        ),
+        ':',
+        $.block_id,
+      ),
     switch_arm: ($) =>
       seq(
         field('value', sepBar(choice($._expression, '_'))),
@@ -380,7 +410,14 @@ module.exports = grammar({
     continue_statement: ($) => seq('continue', optional($.integer), semi()),
     nop_statement: ($) => seq('nop', semi()),
 
-    abort_statement: ($) => seq($._abort_kind, semi()),
+    // ULLBC: `panic(name) -> (unwind: bbN)`; LLBC: followed by a `↳⚡` handler.
+    abort_statement: ($) =>
+      seq(
+        $._abort_kind,
+        optional(seq('->', $.call_target)),
+        optional($.unwind_block),
+        semi(),
+      ),
     _abort_kind: ($) =>
       choice(
         seq('panic', optional(seq('(', sepComma($._expression), ')'))),
@@ -391,19 +428,47 @@ module.exports = grammar({
     unwind_statement: ($) =>
       seq(choice('unwind_continue', 'unwind_unreachable', 'unreachable'), semi()),
 
+    // `asm!("tmpl", in(reg) move x, lateout(reg) y, const 7i32, sym f,
+    //  label(branch 0), options(nomem))`, or `naked_asm!("ret")`. ULLBC appends
+    // `-> fallthrough: bb1, label 0: bb2, unwind: bb3`; LLBC a block of
+    // `fallthrough => { }` / `label 0 => { }` arms.
     inline_asm_statement: ($) =>
       seq(
-        'asm!',
+        choice('asm!', 'naked_asm!'),
         '(',
-        sepComma($._expression),
+        sepComma(choice($.asm_operand, $._expression)),
         ')',
         optional(seq('->', sep1($.switch_target, ','))),
         optional($.asm_targets),
         optional($.unwind_block),
         semi(),
       ),
+    asm_operand: ($) =>
+      choice(
+        seq(
+          choice('in', 'out', 'lateout', 'inout', 'inlateout'),
+          '(',
+          choice($.identifier, $.string),
+          ')',
+          choice($._expression, '_'),
+          optional(seq('=>', choice($.place, '_'))),
+        ),
+        seq('sym', $.path),
+        seq('label', '(', 'branch', $.integer, ')'),
+        seq('options', '(', sepComma($.identifier), ')'),
+      ),
     asm_targets: ($) =>
-      seq('{', repeat(seq('target', $.integer, '=>', $.brace_block)), '}'),
+      seq(
+        '{',
+        repeat(
+          seq(
+            choice(seq(choice('target', 'label'), $.integer), 'fallthrough'),
+            '=>',
+            $.brace_block,
+          ),
+        ),
+        '}',
+      ),
 
     // The external scanner / generic `@name` covers `@ERROR(...)` too.
     at_name: ($) => token(/@[A-Za-z_][A-Za-z0-9_]*/),
@@ -466,6 +531,7 @@ module.exports = grammar({
     trait_item: ($) =>
       seq(
         optional($.visibility),
+        optional('unsafe'),
         'trait',
         field('name', $.path),
         optional($.where_clause),
@@ -485,7 +551,15 @@ module.exports = grammar({
         $.function_item,
       ),
     proof_clause: ($) =>
-      seq('proof', $._type, ':', $.clause_bound, optional(seq('=', $._type))),
+      seq(
+        optional($.for_lifetimes),
+        'proof',
+        $._type,
+        ':',
+        optional($.for_lifetimes),
+        $.clause_bound,
+        optional(seq('=', $._type)),
+      ),
     assoc_type: ($) =>
       seq('type', $.identifier, optional($.generic_arguments), optional(seq('=', $._type)), optional($.where_clause), semi()),
     assoc_const: ($) =>
@@ -512,14 +586,18 @@ module.exports = grammar({
     impl_item: ($) =>
       seq(
         optional($.visibility),
+        optional('unsafe'),
         'impl',
         optional($.generic_arguments),
         optional(field('short_name', $.string)),
+        optional($.negative_impl),
         field('trait', $._type),
         optional(seq('for', field('type', $._type))),
         optional($.where_clause),
         $.impl_body,
       ),
+    // `impl !Send for S`
+    negative_impl: ($) => '!',
     impl_body: ($) =>
       seq(
         '{',
@@ -544,7 +622,15 @@ module.exports = grammar({
     global_item: ($) =>
       seq(
         optional($.visibility),
-        choice(seq(optional('thread_local'), choice('const', 'static')), 'thread_local'),
+        optional($.extern_item),
+        // `const`, `[unsafe] static [mut]`, `[unsafe] thread_local [mut]`, and
+        // `vtable` (a trait impl's vtable instance).
+        optional('unsafe'),
+        choice(
+          seq(optional('thread_local'), choice('const', seq('static', optional('mut')))),
+          seq('thread_local', optional('mut')),
+          'vtable',
+        ),
         field('name', $.path),
         ':',
         field('type', $._type),
@@ -555,6 +641,7 @@ module.exports = grammar({
     type_alias_item: ($) =>
       seq(
         optional($.visibility),
+        optional($.extern_item),
         optional('opaque'),
         'type',
         field('name', choice($.path, $.tuple_type_name)),
@@ -564,7 +651,13 @@ module.exports = grammar({
 
     // ----- Where clauses ------------------------------------------------
     where_clause: ($) => seq('where', sep1($.where_predicate, ','), optional(',')),
-    where_predicate: ($) => seq(optional('proof'), $._type, ':', $._predicate_tail),
+    where_predicate: ($) =>
+      seq(
+        optional(seq(optional($.for_lifetimes), 'proof')),
+        $._type,
+        ':',
+        $._predicate_tail,
+      ),
     // `(T: Sized)`, `T: 'a`, `Sized + Clone`, `Self::Assoc = ()`
     _predicate_tail: ($) =>
       seq(optional($.for_lifetimes), $._predicate_body, optional(seq('=', $._type))),
@@ -577,8 +670,15 @@ module.exports = grammar({
           optional(seq('=', $._type)),
         ),
       ),
+    // Also outlives clauses: `Outlives0: ('a: 'b)`.
     clause_bound: ($) =>
-      seq('(', $._type, ':', sep1(choice($._type, $.lifetime), '+'), ')'),
+      seq(
+        '(',
+        choice($._type, $.lifetime),
+        ':',
+        sep1(choice($._type, $.lifetime), '+'),
+        ')',
+      ),
 
     // ----- Types --------------------------------------------------------
     _type: ($) =>
@@ -627,7 +727,12 @@ module.exports = grammar({
         optional(seq('->', $._type)),
       ),
     type_error: ($) => seq('type_error', '(', $.string, ')'),
-    for_lifetimes: ($) => seq('for', '<', sepComma($.lifetime), '>'),
+    for_lifetimes: ($) =>
+      seq('for', '<', sepComma($.lifetime), optional($.binder_predicates), '>'),
+    // Implied outlives bounds of a binder: `fn<'a where T: 'a, 'b: 'a>(..)`,
+    // `dyn for<'a where T: 'a> Fn<..>`.
+    binder_predicates: ($) =>
+      seq('where', sep1(seq(choice($._type, $.lifetime), ':', $.lifetime), ',')),
 
     // `T[TraitClause0, ...]` — a (nominal) type carrying implicit trait-clause
     // refs.
@@ -667,7 +772,9 @@ module.exports = grammar({
     // `name_group` (`{closure#0}`, `{built_in impl Destruct for A}`,
     // `{V<T, N>[TraitClause0]}`, ...) is supplied by the external scanner.
 
-    generic_arguments: ($) => seq('<', sepComma($.generic_argument), '>'),
+    // A fn-pointer binder may carry outlives bounds: `fn<'a where T: 'a>(..)`.
+    generic_arguments: ($) =>
+      seq('<', sepComma($.generic_argument), optional($.binder_predicates), '>'),
     generic_argument: ($) =>
       choice(
         seq(optional('mut'), $.lifetime),
@@ -693,6 +800,7 @@ module.exports = grammar({
     _expression: ($) =>
       choice(
         $.operand,
+        $.noretag_use,
         $.borrow,
         $.cast_expression,
         $.nullary_op,
@@ -703,6 +811,8 @@ module.exports = grammar({
         $.aggregate,
         $.raw_memory,
         $.raw_pointer_aggregate,
+        $.opaque_const,
+        $.no_provenance,
         $.array_expression,
         $.repeat_expression,
         $.tuple_expression,
@@ -724,6 +834,10 @@ module.exports = grammar({
         seq('const', $._constant),
       ),
 
+    // `Rvalue::Use` of an operand that must not be retagged:
+    // `_2 = noretag copy _1.metadata`.
+    noretag_use: ($) => seq('noretag', $.operand),
+
     _constant: ($) =>
       choice(
         $.boolean,
@@ -743,13 +857,34 @@ module.exports = grammar({
         $.no_provenance,
         $.opaque_const,
         $.raw_memory,
+        $.repeat_expression,
+        $.type_id,
         $.path,
       ),
     // `RawMemory(0x01, --, &Z[0])`: a byte is a value, `--` (uninit) or a
     // provenance pointer.
     raw_memory: ($) =>
-      seq('RawMemory', '(', sepComma(choice($._expression, $.uninit_byte)), ')'),
+      seq(
+        'RawMemory',
+        '(',
+        sepComma(choice($._expression, $.uninit_byte, $.provenance_byte)),
+        ')',
+      ),
     uninit_byte: ($) => '--',
+    // The i-th byte of a pointer: `&ARR[0]`, `&ARR+4[0]` (non-zero offset into
+    // the allocation), `&TypeId(u8)[3]`.
+    provenance_byte: ($) =>
+      seq(
+        '&',
+        choice($.path, $.type_id),
+        optional(seq('+', $.integer)),
+        '[',
+        $.integer,
+        ']',
+      ),
+    // `TypeId(T)`. A single token so `TypeId` stays an ordinary name elsewhere
+    // (`TypeId { .. }`).
+    type_id: ($) => seq(token('TypeId('), $._type, ')'),
     // `Opaque(reason)` carries free-form text.
     opaque_const: ($) => token(seq('Opaque(', /[^)]*/, ')')),
     no_provenance: ($) => seq('no-provenance', $.integer),
@@ -779,6 +914,7 @@ module.exports = grammar({
           $.string,
           $.byte_string,
           $.char,
+          $.builtin_body,
         ),
         optional($.with_metadata),
       )),
@@ -871,7 +1007,15 @@ module.exports = grammar({
 
     call_expression: ($) =>
       seq(
-        field('function', choice($.path, $.clause_typed, seq('(', $._expression, ')'))),
+        // A call through a function pointer prints as `(move f)<'7>(args)`.
+        field(
+          'function',
+          choice(
+            $.path,
+            $.clause_typed,
+            seq('(', $._expression, ')', optional($.generic_arguments)),
+          ),
+        ),
         '(',
         sepComma($._expression),
         ')',
@@ -900,7 +1044,11 @@ module.exports = grammar({
       choice(
         seq('.', field('field', choice(name($), $.integer, 'metadata'))),
         $.index_projection,
+        $.offset_projection,
       ),
+    // `p.offset!(copy n)`, `ARR.wrapping_offset!(-1isize * size_of::<u32>())`
+    offset_projection: ($) =>
+      seq('.', choice('offset!', 'wrapping_offset!'), '(', $._expression, ')'),
     // `place[i]`, `place[i..j]`, `place[i..]`, `place[-1]`
     index_projection: ($) =>
       seq('[', choice(seq($._expression, '..', optional($._expression)), $._expression), ']'),
